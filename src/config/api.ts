@@ -4,7 +4,7 @@
 export const API_CONFIG = {
   // Use local API for development, use your backend service for production
   BASE_URL: process.env.NODE_ENV === 'production' 
-    ? 'https://lcb-backend.onrender.com'  // Replace with your actual Render backend URL
+    ? 'https://lcb-backend-4uqe.onrender.com'  // Replace with your actual Render backend URL
     : 'http://localhost:5001', // Local Python backend address
   
   ENDPOINTS: {
