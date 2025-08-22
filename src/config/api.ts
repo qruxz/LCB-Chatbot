@@ -4,13 +4,13 @@
 export const API_CONFIG = {
   // Use local API for development, use your backend service for production
   BASE_URL: process.env.NODE_ENV === 'production' 
-    ? 'https://your-python-backend.herokuapp.com' // Replace with your backend URL
+    ? 'https://lcb-backend.onrender.com'  // Replace with your actual Render backend URL
     : 'http://localhost:5001', // Local Python backend address
   
   ENDPOINTS: {
     CHAT: '/api/chat',
     HEALTH: '/api/health',
-    CONTACT: '/api/contact'
+    CONTACT: '/api/contact'  // make sure your Flask app has /api/contact or remove this
   }
 };
 
@@ -24,7 +24,7 @@ export async function callPythonBackend(message: string): Promise<string> {
       },
       body: JSON.stringify({
         message: message,
-        user_id: 'anonymous', // Can add user identification
+        user_id: 'anonymous', // optional: replace with logged-in user id if available
         timestamp: new Date().toISOString()
       }),
     });
