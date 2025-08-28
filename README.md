@@ -6,7 +6,7 @@ It combines **Google Gemini** with a **Retrieval-Augmented Generation (RAG)** sy
 ---
 
 ## ✨ Features
-- **Backend (Flask + Gemini + RAG)**  
+- **Backend (FastAPI + Gemini + RAG)**  
   - Google Gemini integration (`google-generativeai`)  
   - RAG with **ChromaDB vector database**  
   - Loads **brand data from JSON** (no PDF required)  
