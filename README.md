@@ -204,7 +204,7 @@ frontend/
 ---
 
 ✅ With this setup, you now have:  
-- A **backend API** (Flask + Gemini + RAG).  
+- A **backend API** (FastAPI + Gemini + RAG).  
 - A **frontend UI** with predefined questions.  
 - A **brand knowledge base** in JSON.  
 - A chatbot ready to deploy for farmers & dealers.  
