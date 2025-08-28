@@ -15,7 +15,7 @@ It combines **Google Gemini** with a **Retrieval-Augmented Generation (RAG)** sy
   - Contact logging + lead capture  
   - Predefined sample questions  
 
-- **Frontend (React / Next.js or plain JS)**  
+- **Frontend (React / Next.js )**  
   - Simple chat UI  
   - **Predefined quick questions** (one-click access)  
   - Real-time responses from backend API  
