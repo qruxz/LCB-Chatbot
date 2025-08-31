@@ -9,7 +9,7 @@ It combines **Google Gemini** with a **Retrieval-Augmented Generation (RAG)** sy
 - **Backend (FastAPI + Gemini + RAG)**  
   - Google Gemini integration (`google-generativeai`)  
   - RAG with **ChromaDB vector database**  
-  - Loads **brand data from JSON** (no PDF required)  
+  - Loads **Scraped Data using Beautifulsoup** ()  
   - FAQ-first → **short, precise answers**  
   - RESTful API with CORS  
   - Contact logging + lead capture  
@@ -19,23 +19,23 @@ It combines **Google Gemini** with a **Retrieval-Augmented Generation (RAG)** sy
   - Simple chat UI  
   - **Predefined quick questions** (one-click access)  
   - Real-time responses from backend API  
-  - Deployed anywhere (Netlify, Vercel, static server)  
+  - Deployed anywhere (Netlify, Vercel, Render)  
 
 ---
 
 ## 🏗️ RAG System Architecture
 
 ```
-User Query → Vectorization → Similarity Search → FAQ Match → Gemini Response
+User Query → Vectorization Using ChromaDB → Similarity Search → FAQ Match → Gemini Response
       ↓
- brand_data.json → Document Splitting → Vector Storage → ChromaDB
+ Scrapped Website Data → Document Splitting → Vector Storage → ChromaDB → LLM's response
 ```
 
 **Workflow**:  
-1. Brand data (`brand_data.json`) → converted into structured docs.  
+1. `Scraped Website Data` → converted into structured docs.  
 2. Docs chunked and stored in **ChromaDB** as vectors.  
 3. User query embedded → similarity search finds closest docs/FAQs.  
-4. Gemini uses retrieved info to generate a **concise branded answer**.  
+4. Gemini(i.e LLM) uses retrieved info to generate a **concise branded answer**.  
 
 ---
 
@@ -113,7 +113,7 @@ Rebuilds vector DB after updating brand data.
 
 ## 🗂️ Brand Data Configuration
 
-All brand/product info lives in **`brand_data.json`**:  
+All brand/product info lives in **`Scraped_DATA Folder**:  
 
 ```json
 {
@@ -206,5 +206,5 @@ frontend/
 ✅ With this setup, you now have:  
 - A **backend API** (FastAPI + Gemini + RAG).  
 - A **frontend UI** with predefined questions.  
-- A **brand knowledge base** in JSON.  
+- A **Scraped_data knowledge base** in JSON.  
 - A chatbot ready to deploy for farmers & dealers.  
