@@ -195,9 +195,7 @@ frontend/
 ---
 
 ## 🔮 Why Gemini + RAG?
-- **FAQ-first answers** → short, accurate, branded  
-- **No hallucination** → always grounded in `brand_data.json`  
-- **Lightweight** → runs locally, no external DB needed  
+- **FAQ-first answers** → short, accurate, branded    
 - **Scalable** → can add more products, brands, FAQs easily  
 - **Farmer-friendly** → answers in simple, clear language  
 
