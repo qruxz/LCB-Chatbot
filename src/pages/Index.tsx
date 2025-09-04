@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ChatSection from "@/components/ChatSection";
 
 const Index = () => {
   const location = useLocation();
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-950 via-green-900 to-green-950">
@@ -43,32 +41,14 @@ const Index = () => {
           </nav>
         </header>
 
-        {/* Floating Chatbot Button */}
-        {!isChatOpen && (
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="fixed bottom-6 left-6 w-16 h-16 bg-green-600 hover:bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
-          >
-            💬
-          </button>
-        )}
+        {/* Fullscreen Chat Window (open by default) */}
+        <div className="fixed inset-0 z-50 bg-gradient-to-br from-green-950 via-green-900 to-green-950">
+          {/* Close Button */}
+         
 
-        {/* Fullscreen Chat Window */}
-        {isChatOpen && (
-          <div className="fixed inset-0 z-50 bg-gradient-to-br from-green-950 via-green-900 to-green-950">
-            {/* Close Button */}
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="absolute top-4 right-4 px-4 py-2 rounded-lg text-white shadow-md transition-colors duration-300"
-              style={{ backgroundColor: "rgb(148,191,115)" }}
-            >
-              ✕ 
-            </button>
-
-            {/* Chat Section */}
-            <ChatSection />
-          </div>
-        )}
+          {/* Chat Section */}
+          <ChatSection />
+        </div>
       </div>
     </div>
   );
