@@ -7,12 +7,16 @@ export interface ChatResponse {
   error?: string;
 }
 
-export async function sendMessage(message: string): Promise<ChatResponse> {
+export async function sendMessage(
+  message: string,
+  language: "en" | "hi" = "en"  
+): Promise<ChatResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/chat`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        "X-Language": language, 
       },
       body: JSON.stringify({ message }),
     });
@@ -24,11 +28,12 @@ export async function sendMessage(message: string): Promise<ChatResponse> {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error sending message:', error);
+    console.error("Error sending message:", error);
     return {
-      response: 'Sorry, I\'m having trouble connecting to the server. Please make sure the backend is running on http://localhost:5001',
+      response:
+        "Sorry, I'm having trouble connecting to the server. Please make sure the backend is running on http://localhost:5001",
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -40,9 +45,9 @@ export async function checkHealth(): Promise<boolean> {
       return false;
     }
     const data = await response.json();
-    return data.api_key === 'configured';
+    return data.api_key === "configured";
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error("Health check failed:", error);
     return false;
   }
-} 
+}
