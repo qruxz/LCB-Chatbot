@@ -1,10 +1,10 @@
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
   text: string;
   isUser: boolean;
-  timestamp: Date;
+  timestamp: Date | string; // safer: accept both
 }
 
 interface MessageBubbleProps {
@@ -12,22 +12,32 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = ({ message }: MessageBubbleProps) => {
+  const time =
+    message.timestamp instanceof Date
+      ? message.timestamp
+      : new Date(message.timestamp);
+
   return (
-    <div className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${message.isUser ? "justify-end" : "justify-start"} mb-2`}>
       <div
-        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl font-poppins ${
+        className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm shadow ${
           message.isUser
-            ? "bg-emerald-500/20 text-emerald-900 border border-emerald-400 shadow-md"
-            : "bg-white text-emerald-800 border border-emerald-300"
+            ? "bg-emerald-500 text-white rounded-br-sm" // user bubble (right)
+            : "bg-gray-100 text-gray-900 rounded-bl-sm" // ai bubble (left)
         }`}
       >
-        <div className="prose prose-sm max-w-none">
+        {/* Markdown text */}
+        <div className="prose-sm max-w-none">
           <ReactMarkdown>{message.text}</ReactMarkdown>
         </div>
-        <p className={`text-xs mt-2 font-montserrat ${
-          message.isUser ? "text-emerald-700" : "text-emerald-600"
-        }`}>
-          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+
+        {/* Timestamp */}
+        <p
+          className={`text-[10px] mt-1 text-right ${
+            message.isUser ? "text-emerald-200" : "text-gray-500"
+          }`}
+        >
+          {time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </p>
       </div>
     </div>
