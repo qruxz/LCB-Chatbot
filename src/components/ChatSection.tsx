@@ -14,9 +14,9 @@ interface Message {
   timestamp: Date;
 }
 
-const LCB_GREEN = "rgb(148,191,115)";      // light green
-const LCB_GREEN_DARK = "rgb(148,191,115)"; // hover/border darker
-const LCB_GREEN_SOFT = "#EAF8EE"; // pale bg for typing chip
+const LCB_GREEN = "rgb(148,191,115)";
+const LCB_GREEN_DARK = "rgb(148,191,115)";
+const LCB_GREEN_SOFT = "#EAF8EE";
 
 const ChatSection = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -31,11 +31,13 @@ const ChatSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isServerOnline, setIsServerOnline] = useState(true);
 
+  // 👇 NEW: Language state
+  const [language, setLanguage] = useState<"en" | "hi">("en");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // chips scroller refs/state
   const chipsRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -89,7 +91,6 @@ const ChatSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // chips scroll helpers
   const updateChipsScrollState = () => {
     const el = chipsRef.current;
     if (!el) return;
@@ -132,7 +133,8 @@ const ChatSection = () => {
     requestAnimationFrame(scrollChatToBottom);
 
     try {
-      const response = await sendMessage(messageText);
+      // 👇 pass language to backend
+      const response = await sendMessage(messageText, language);
 
       if (response.success) {
         const aiMessage: Message = {
@@ -169,38 +171,45 @@ const ChatSection = () => {
         >
           {/* Header */}
           <div
-            className="p-4 sm:p-6 text-white border-b"
+            className="p-4 sm:p-6 text-white border-b flex justify-between items-center"
             style={{ backgroundColor: LCB_GREEN, borderColor: LCB_GREEN_DARK }}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center shadow-md">
-                  <img
-              src="https://static.wixstatic.com/media/9f521c_3889887a159a4d15b348c18ed3a8b49c~mv2.jpeg/v1/crop/x_24,y_43,w_579,h_579/fill/w_80,h_80,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LCB%20Fertilizers.jpeg"
-              alt="LCB Logo"
-              className="w-12 h-12 rounded-full object-cover"
-            />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center shadow-md">
+                <img
+                  src="https://static.wixstatic.com/media/9f521c_3889887a159a4d15b348c18ed3a8b49c~mv2.jpeg/v1/crop/x_24,y_43,w_579,h_579/fill/w_80,h_80,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LCB%20Fertilizers.jpeg"
+                  alt="LCB Logo"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-2xl font-montserrat font-bold">
+                  LCB ChatBot 🌱
+                </h2>
+                <p className="text-xs sm:text-sm font-poppins">
+                  Ask about Navyakosh
+                </p>
+              </div>
+            </div>
 
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-2xl font-montserrat font-bold">
-                    LCB ChatBot 🌱
-                  </h2>
-                  <p className="text-xs sm:text-sm font-poppins">
-                    Ask about Navyakosh
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isServerOnline ? "bg-green-400" : "bg-red-400"
-                  }`}
-                ></div>
-                <span className="text-xs sm:text-sm font-poppins">
-                  {isServerOnline ? "Online" : "Offline"}
-                </span>
-              </div>
+            {/* 👇 Language Toggle */}
+            <div className="flex items-center gap-2 text-sm">
+              <button
+                onClick={() => setLanguage("en")}
+                className={`px-2 py-1 rounded ${
+                  language === "en" ? "bg-white text-green-700 font-bold" : "bg-transparent text-white"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage("hi")}
+                className={`px-2 py-1 rounded ${
+                  language === "hi" ? "bg-white text-green-700 font-bold" : "bg-transparent text-white"
+                }`}
+              >
+                हिंदी
+              </button>
             </div>
           </div>
 
@@ -225,7 +234,7 @@ const ChatSection = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input + One-row chips carousel */}
+          {/* Input + Chips */}
           <div className="p-4 sm:p-6 bg-white border-t" style={{ borderColor: LCB_GREEN }}>
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Input
@@ -246,26 +255,23 @@ const ChatSection = () => {
                 className="rounded-xl px-4 sm:px-6 text-white font-montserrat"
                 style={{ backgroundColor: LCB_GREEN }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    LCB_GREEN_DARK)
+                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor = LCB_GREEN_DARK)
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    LCB_GREEN)
+                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor = LCB_GREEN)
                 }
               >
                 <ArrowRight size={18} />
               </Button>
             </div>
 
-            {/* Single-row horizontal scroller with arrows */}
+            {/* Chips */}
             <div className="space-y-2">
               <p className="text-xs sm:text-sm font-montserrat" style={{ color: LCB_GREEN_DARK }}>
                 Try asking:
               </p>
 
               <div className="relative">
-                {/* Left Arrow */}
                 <button
                   aria-label="Scroll left"
                   onClick={() => scrollChips("left")}
@@ -278,15 +284,10 @@ const ChatSection = () => {
                   <ChevronLeft size={18} />
                 </button>
 
-                {/* Chips track */}
                 <div
                   ref={chipsRef}
                   onScroll={updateChipsScrollState}
                   className="flex gap-2 overflow-x-auto snap-x snap-mandatory pr-2 pl-2 sm:pl-8 sm:pr-8 items-stretch"
-                  style={{
-                    // hide scrollbar for webkit; safe to keep if you prefer showing
-                    WebkitOverflowScrolling: "touch",
-                  }}
                 >
                   {predefinedQuestions.map((question, index) => (
                     <button
@@ -305,7 +306,6 @@ const ChatSection = () => {
                   ))}
                 </div>
 
-                {/* Right Arrow */}
                 <button
                   aria-label="Scroll right"
                   onClick={() => scrollChips("right")}
@@ -322,8 +322,6 @@ const ChatSection = () => {
           </div>
         </div>
       </div>
-
-      {/* hide scrollbars for chips (component-scoped) */}
       <style jsx>{`
         div::-webkit-scrollbar {
           height: 0px;
