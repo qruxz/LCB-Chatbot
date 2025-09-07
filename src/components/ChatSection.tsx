@@ -1,4 +1,4 @@
-"use client";
+"use client";  
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,13 +34,78 @@ const ChatSection = () => {
   // 👇 NEW: Language state
   const [language, setLanguage] = useState<"en" | "hi">("en");
 
+  // 👇 NEW: Follow-up suggestions state
+  const [followUpSuggestions, setFollowUpSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const chipsRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // English follow-up questions
+  const englishQuestions = [
+    "What is Navyakosh Organic Fertilizer?",
+    "What are the benefits of using Navyakosh?",
+    "How do I apply it for Wheat, Maize, and Paddy?",
+    "Is it safe for long-term soil health?",
+    "Can it replace chemical fertilizers?",
+    "How does it improve crop yield?",
+    "What kind of results can I expect?",
+    "On which crops can it be used?",
+    "Where can I buy Navyakosh?",
+    "How does it reduce irrigation?",
+    "What is the cost of Navyakosh?",
+    "How much quantity should I use?",
+    "When should I apply the fertilizer?",
+    "What are the soil requirements?",
+    "How long does it take to show results?",
+    "Is it suitable for organic farming?",
+    "What is the shelf life?",
+    "How to store Navyakosh properly?",
+    "Can it be mixed with other fertilizers?",
+    "What are the main ingredients?",
+    "How does weather affect application?",
+    "What crops benefit most from Navyakosh?",
+    "How often should I apply it?",
+    "What is the application method for different crops?",
+    "Does it work in all soil types?"
+  ];
+
+  // Hindi follow-up questions
+  const hindiQuestions = [
+    "नव्याकोश जैविक उर्वरक क्या है?",
+    "नव्याकोश उपयोग करने के क्या फायदे हैं?",
+    "गेहूं, मक्का और धान के लिए इसे कैसे लगाएं?",
+    "क्या यह मिट्टी के स्वास्थ्य के लिए सुरक्षित है?",
+    "क्या यह रासायनिक उर्वरकों की जगह ले सकता है?",
+    "यह फसल की पैदावार कैसे बढ़ाता है?",
+    "मुझे किस प्रकार के परिणामों की उम्मीद करनी चाहिए?",
+    "यह किन फसलों पर इस्तेमाल हो सकता है?",
+    "नव्याकोश कहाँ से खरीद सकते हैं?",
+    "यह सिंचाई कैसे कम करता है?",
+    "नव्याकोश की कीमत क्या है?",
+    "कितनी मात्रा में उपयोग करना चाहिए?",
+    "उर्वरक कब लगाना चाहिए?",
+    "मिट्टी की क्या आवश्यकताएं हैं?",
+    "परिणाम दिखने में कितना समय लगता है?",
+    "क्या यह जैविक खेती के लिए उपयुक्त है?",
+    "इसकी शेल्फ लाइफ कितनी है?",
+    "नव्याकोश को सही तरीके से कैसे स्टोर करें?",
+    "क्या इसे अन्य उर्वरकों के साथ मिलाया जा सकता है?",
+    "मुख्य सामग्री क्या हैं?",
+    "मौसम लगाने को कैसे प्रभावित करता है?",
+    "कौन सी फसलों को नव्याकोश से सबसे ज्यादा फायदा होता है?",
+    "कितनी बार लगाना चाहिए?",
+    "विभिन्न फसलों के लिए लगाने का तरीका क्या है?",
+    "क्या यह सभी प्रकार की मिट्टी में काम करता है?"
+  ];
 
   const isNearBottom = (): boolean => {
     const el = scrollContainerRef.current;
@@ -63,18 +128,72 @@ const ChatSection = () => {
     if (isNearBottom()) scrollChatToBottom();
   }, [messages]);
 
-  const predefinedQuestions = [
-    "What is Navyakosh Organic Fertilizer?",
-    "What are the benefits of using Navyakosh?",
-    "How do I apply it for Wheat, Maize, and Paddy?",
-    "Is it safe for long-term soil health?",
-    "Can it replace chemical fertilizers?",
-    "How does it improve crop yield?",
-    "What kind of results can I expect?",
-    "On which crops can it be used?",
-    "Where can I buy Navyakosh?",
-    "How does it reduce irrigation?",
-  ];
+  // 👇 NEW: Filter suggestions based on input
+  useEffect(() => {
+    if (inputValue.trim().length === 0) {
+      setFollowUpSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const currentQuestions = language === "en" ? englishQuestions : hindiQuestions;
+    const filtered = currentQuestions.filter((question) =>
+      question.toLowerCase().includes(inputValue.toLowerCase())
+    ).slice(0, 5); // Show max 5 suggestions
+
+    setFollowUpSuggestions(filtered);
+    setShowSuggestions(filtered.length > 0);
+    setSelectedSuggestionIndex(-1);
+  }, [inputValue, language]);
+
+  // 👇 NEW: Handle keyboard navigation for suggestions
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || followUpSuggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => 
+        prev < followUpSuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => prev > -1 ? prev - 1 : -1);
+    } else if (e.key === "Enter" && selectedSuggestionIndex >= 0) {
+      e.preventDefault();
+      const selectedSuggestion = followUpSuggestions[selectedSuggestionIndex];
+      setInputValue(selectedSuggestion);
+      setShowSuggestions(false);
+      handleSendMessage(selectedSuggestion);
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+    }
+  };
+
+  // 👇 NEW: Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputValue(suggestion);
+    setShowSuggestions(false);
+    handleSendMessage(suggestion);
+  };
+
+  // 👇 NEW: Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const predefinedQuestions = language === "en" ? englishQuestions.slice(0, 10) : hindiQuestions.slice(0, 10);
 
   // Server check
   useEffect(() => {
@@ -129,6 +248,7 @@ const ChatSection = () => {
 
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    setShowSuggestions(false); // 👇 Hide suggestions after sending
     setIsLoading(true);
     requestAnimationFrame(scrollChatToBottom);
 
@@ -156,7 +276,7 @@ const ChatSection = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && selectedSuggestionIndex === -1) {
       e.preventDefault();
       handleSendMessage(inputValue);
     }
@@ -187,7 +307,7 @@ const ChatSection = () => {
                   LCB ChatBot 🌱
                 </h2>
                 <p className="text-xs sm:text-sm font-poppins">
-                  Ask about Navyakosh
+                  {language === "en" ? "Ask about Navyakosh" : "नव्याकोश के बारे में पूछें"}
                 </p>
               </div>
             </div>
@@ -227,27 +347,54 @@ const ChatSection = () => {
                   className="rounded-2xl px-4 py-2 max-w-xs font-poppins"
                   style={{ backgroundColor: LCB_GREEN_SOFT, color: LCB_GREEN_DARK }}
                 >
-                  Typing...
+                  {language === "en" ? "Typing..." : "टाइप कर रहे हैं..."}
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input + Chips */}
-          <div className="p-4 sm:p-6 bg-white border-t" style={{ borderColor: LCB_GREEN }}>
+          {/* Input + Suggestions + Chips */}
+          <div className="p-4 sm:p-6 bg-white border-t relative" style={{ borderColor: LCB_GREEN }}>
+            {/* 👇 NEW: Follow-up Suggestions Dropdown */}
+            {showSuggestions && followUpSuggestions.length > 0 && (
+              <div
+                ref={suggestionsRef}
+                className="absolute bottom-full left-4 right-4 sm:left-6 sm:right-6 mb-2 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto z-10"
+                style={{ borderColor: LCB_GREEN }}
+              >
+                {followUpSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 font-poppins text-sm ${
+                      selectedSuggestionIndex === index ? 'bg-gray-50' : ''
+                    }`}
+                    style={{
+                      color: selectedSuggestionIndex === index ? LCB_GREEN_DARK : '#374151'
+                    }}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Input
+                ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your question..."
+                onKeyDown={handleKeyDown} // 👇 NEW: Handle arrow keys
+                placeholder={language === "en" ? "Type your question..." : "अपना प्रश्न टाइप करें..."}
                 className="flex-1 bg-white rounded-xl font-poppins"
                 style={{
                   borderColor: LCB_GREEN,
                   color: "#166534",
                 }}
                 disabled={isLoading || !isServerOnline}
+                autoComplete="off"
               />
               <Button
                 onClick={() => handleSendMessage(inputValue)}
@@ -268,7 +415,7 @@ const ChatSection = () => {
             {/* Chips */}
             <div className="space-y-2">
               <p className="text-xs sm:text-sm font-montserrat" style={{ color: LCB_GREEN_DARK }}>
-                Try asking:
+                {language === "en" ? "Try asking:" : "पूछने की कोशिश करें:"}
               </p>
 
               <div className="relative">
