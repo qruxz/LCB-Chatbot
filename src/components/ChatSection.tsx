@@ -1,4 +1,4 @@
-"use client";  
+"use client";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,10 +31,10 @@ const ChatSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isServerOnline, setIsServerOnline] = useState(true);
 
-  // 👇 NEW: Language state
-  const [language, setLanguage] = useState<"en" | "hi">("en");
+  // ✅ Language state (only English and Hinglish)
+  const [language, setLanguage] = useState<"en" | "hinglish">("en");
 
-  // 👇 NEW: Follow-up suggestions state
+  // Follow-up suggestions state
   const [followUpSuggestions, setFollowUpSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -44,7 +44,6 @@ const ChatSection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
   const chipsRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -78,33 +77,28 @@ const ChatSection = () => {
     "Does it work in all soil types?"
   ];
 
-  // Hindi follow-up questions
-  const hindiQuestions = [
-    "नव्याकोश जैविक उर्वरक क्या है?",
-    "नव्याकोश उपयोग करने के क्या फायदे हैं?",
-    "गेहूं, मक्का और धान के लिए इसे कैसे लगाएं?",
-    "क्या यह मिट्टी के स्वास्थ्य के लिए सुरक्षित है?",
-    "क्या यह रासायनिक उर्वरकों की जगह ले सकता है?",
-    "यह फसल की पैदावार कैसे बढ़ाता है?",
-    "मुझे किस प्रकार के परिणामों की उम्मीद करनी चाहिए?",
-    "यह किन फसलों पर इस्तेमाल हो सकता है?",
-    "नव्याकोश कहाँ से खरीद सकते हैं?",
-    "यह सिंचाई कैसे कम करता है?",
-    "नव्याकोश की कीमत क्या है?",
-    "कितनी मात्रा में उपयोग करना चाहिए?",
-    "उर्वरक कब लगाना चाहिए?",
-    "मिट्टी की क्या आवश्यकताएं हैं?",
-    "परिणाम दिखने में कितना समय लगता है?",
-    "क्या यह जैविक खेती के लिए उपयुक्त है?",
-    "इसकी शेल्फ लाइफ कितनी है?",
-    "नव्याकोश को सही तरीके से कैसे स्टोर करें?",
-    "क्या इसे अन्य उर्वरकों के साथ मिलाया जा सकता है?",
-    "मुख्य सामग्री क्या हैं?",
-    "मौसम लगाने को कैसे प्रभावित करता है?",
-    "कौन सी फसलों को नव्याकोश से सबसे ज्यादा फायदा होता है?",
-    "कितनी बार लगाना चाहिए?",
-    "विभिन्न फसलों के लिए लगाने का तरीका क्या है?",
-    "क्या यह सभी प्रकार की मिट्टी में काम करता है?"
+  // ✅ Hinglish example questions
+  const hinglishQuestions = [
+    "aap kya bechte ho?",
+    "Navyakosh kaise use karna hai?",
+    "iske kya fayde hai?",
+    "price kya hai is fertilizer ki?",
+    "kahan se khareed sakte hai?",
+    "wheat ke liye kaise lagana hai?",
+    "organic hai ya nahi yeh?",
+    "kitna quantity chahiye ek acre ke liye?",
+    "results kitne time mein aate hai?",
+    "kya yeh safe hai soil ke liye?",
+    "chemical fertilizer ki jagah use kar sakte hai?",
+    "storage kaise karna hai?",
+    "shelf life kitni hai?",
+    "mixing kar sakte hai dusre fertilizer ke sath?",
+    "main ingredients kya hai?",
+    "weather ka effect hota hai kya?",
+    "best crops kaun se hai is ke liye?",
+    "kitni baar apply karna hai?",
+    "different crops ke liye method alag hai kya?",
+    "all soil types mein kaam karta hai?"
   ];
 
   const isNearBottom = (): boolean => {
@@ -128,7 +122,7 @@ const ChatSection = () => {
     if (isNearBottom()) scrollChatToBottom();
   }, [messages]);
 
-  // 👇 NEW: Filter suggestions based on input
+  // ✅ Suggestion filtering (strict English OR Hinglish)
   useEffect(() => {
     if (inputValue.trim().length === 0) {
       setFollowUpSuggestions([]);
@@ -136,64 +130,25 @@ const ChatSection = () => {
       return;
     }
 
-    const currentQuestions = language === "en" ? englishQuestions : hindiQuestions;
-    const filtered = currentQuestions.filter((question) =>
-      question.toLowerCase().includes(inputValue.toLowerCase())
-    ).slice(0, 5); // Show max 5 suggestions
+    const languageQuestions =
+      language === "en" ? englishQuestions : hinglishQuestions;
+
+    const filtered = languageQuestions
+      .filter((question) =>
+        question.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .slice(0, 6);
 
     setFollowUpSuggestions(filtered);
     setShowSuggestions(filtered.length > 0);
     setSelectedSuggestionIndex(-1);
   }, [inputValue, language]);
 
-  // 👇 NEW: Handle keyboard navigation for suggestions
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestions || followUpSuggestions.length === 0) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => 
-        prev < followUpSuggestions.length - 1 ? prev + 1 : prev
-      );
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => prev > -1 ? prev - 1 : -1);
-    } else if (e.key === "Enter" && selectedSuggestionIndex >= 0) {
-      e.preventDefault();
-      const selectedSuggestion = followUpSuggestions[selectedSuggestionIndex];
-      setInputValue(selectedSuggestion);
-      setShowSuggestions(false);
-      handleSendMessage(selectedSuggestion);
-    } else if (e.key === "Escape") {
-      setShowSuggestions(false);
-      setSelectedSuggestionIndex(-1);
-    }
-  };
-
-  // 👇 NEW: Handle suggestion click
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
-    setShowSuggestions(false);
-    handleSendMessage(suggestion);
-  };
-
-  // 👇 NEW: Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target as Node) &&
-        !inputRef.current?.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const predefinedQuestions = language === "en" ? englishQuestions.slice(0, 10) : hindiQuestions.slice(0, 10);
+  // ✅ Predefined chips (strict English OR Hinglish)
+  const predefinedQuestions =
+    language === "en"
+      ? englishQuestions.slice(0, 6)
+      : hinglishQuestions.slice(0, 6);
 
   // Server check
   useEffect(() => {
@@ -248,12 +203,11 @@ const ChatSection = () => {
 
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
-    setShowSuggestions(false); // 👇 Hide suggestions after sending
+    setShowSuggestions(false);
     setIsLoading(true);
     requestAnimationFrame(scrollChatToBottom);
 
     try {
-      // 👇 pass language to backend
       const response = await sendMessage(messageText, language);
 
       if (response.success) {
@@ -264,6 +218,10 @@ const ChatSection = () => {
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, aiMessage]);
+
+        if ((response as any).detected_language) {
+          console.log(`Detected language: ${(response as any).detected_language}`);
+        }
       } else {
         toast.error("Failed to get response. Please try again.");
       }
@@ -283,11 +241,11 @@ const ChatSection = () => {
   };
 
   return (
-    <section className="px-4 sm:px-6 pb-12 font-poppins">
-      <div className="max-w-5xl mx-auto">
-        <div
-          className="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[80vh] border-2"
-          style={{ borderColor: LCB_GREEN }}
+  <section className="px-0 sm:px-6 pb-0 sm:pb-12 font-poppins h-screen sm:h-auto">
+  <div className="mx-0 sm:mx-auto w-full sm:max-w-5xl h-screen sm:h-auto">
+    <div
+      className="bg-white flex flex-col h-screen sm:h-[80vh] rounded-none sm:rounded-3xl border-0 sm:border-2 shadow-xl overflow-hidden"
+      style={{ borderColor: LCB_GREEN }}
         >
           {/* Header */}
           <div
@@ -307,28 +265,36 @@ const ChatSection = () => {
                   LCB ChatBot 🌱
                 </h2>
                 <p className="text-xs sm:text-sm font-poppins">
-                  {language === "en" ? "Ask about Navyakosh" : "नव्याकोश के बारे में पूछें"}
+                  {language === "en"
+                    ? "Ask about Navyakosh (English only)"
+                    : "Navyakosh ke baare mein puchho (Hinglish only)"}
                 </p>
               </div>
             </div>
 
-            {/* 👇 Language Toggle */}
+            {/* ✅ Language Toggle (English / Hinglish) */}
             <div className="flex items-center gap-2 text-sm">
               <button
                 onClick={() => setLanguage("en")}
-                className={`px-2 py-1 rounded ${
-                  language === "en" ? "bg-white text-green-700 font-bold" : "bg-transparent text-white"
+                className={`px-3 py-1 rounded transition-all ${
+                  language === "en"
+                    ? "bg-white text-green-700 font-bold shadow"
+                    : "bg-transparent text-white hover:bg-white/20"
                 }`}
+                title="English"
               >
                 EN
               </button>
               <button
-                onClick={() => setLanguage("hi")}
-                className={`px-2 py-1 rounded ${
-                  language === "hi" ? "bg-white text-green-700 font-bold" : "bg-transparent text-white"
+                onClick={() => setLanguage("hinglish")}
+                className={`px-3 py-1 rounded transition-all ${
+                  language === "hinglish"
+                    ? "bg-white text-green-700 font-bold shadow"
+                    : "bg-transparent text-white hover:bg-white/20"
                 }`}
+                title="Hinglish"
               >
-                हिंदी
+                Hinglish
               </button>
             </div>
           </div>
@@ -345,9 +311,12 @@ const ChatSection = () => {
               <div className="flex justify-start">
                 <div
                   className="rounded-2xl px-4 py-2 max-w-xs font-poppins"
-                  style={{ backgroundColor: LCB_GREEN_SOFT, color: LCB_GREEN_DARK }}
+                  style={{
+                    backgroundColor: LCB_GREEN_SOFT,
+                    color: LCB_GREEN_DARK,
+                  }}
                 >
-                  {language === "en" ? "Typing..." : "टाइप कर रहे हैं..."}
+                  {language === "en" ? "Typing..." : "Typing in Hinglish..."}
                 </div>
               </div>
             )}
@@ -355,8 +324,11 @@ const ChatSection = () => {
           </div>
 
           {/* Input + Suggestions + Chips */}
-          <div className="p-4 sm:p-6 bg-white border-t relative" style={{ borderColor: LCB_GREEN }}>
-            {/* 👇 NEW: Follow-up Suggestions Dropdown */}
+          <div
+            className="p-4 sm:p-6 bg-white border-t relative"
+            style={{ borderColor: LCB_GREEN }}
+          >
+            {/* Follow-up Suggestions Dropdown */}
             {showSuggestions && followUpSuggestions.length > 0 && (
               <div
                 ref={suggestionsRef}
@@ -366,12 +338,19 @@ const ChatSection = () => {
                 {followUpSuggestions.map((suggestion, index) => (
                   <button
                     key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 font-poppins text-sm ${
-                      selectedSuggestionIndex === index ? 'bg-gray-50' : ''
+                    onClick={() => {
+                      setInputValue(suggestion);
+                      setShowSuggestions(false);
+                      handleSendMessage(suggestion);
+                    }}
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 font-poppins text-sm transition-colors ${
+                      selectedSuggestionIndex === index ? "bg-gray-50" : ""
                     }`}
                     style={{
-                      color: selectedSuggestionIndex === index ? LCB_GREEN_DARK : '#374151'
+                      color:
+                        selectedSuggestionIndex === index
+                          ? LCB_GREEN_DARK
+                          : "#374151",
                     }}
                   >
                     {suggestion}
@@ -386,8 +365,11 @@ const ChatSection = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                onKeyDown={handleKeyDown} // 👇 NEW: Handle arrow keys
-                placeholder={language === "en" ? "Type your question..." : "अपना प्रश्न टाइप करें..."}
+                placeholder={
+                  language === "en"
+                    ? "Type in English..."
+                    : "Type in Hinglish..."
+                }
                 className="flex-1 bg-white rounded-xl font-poppins"
                 style={{
                   borderColor: LCB_GREEN,
@@ -402,10 +384,12 @@ const ChatSection = () => {
                 className="rounded-xl px-4 sm:px-6 text-white font-montserrat"
                 style={{ backgroundColor: LCB_GREEN }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor = LCB_GREEN_DARK)
+                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    LCB_GREEN_DARK)
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor = LCB_GREEN)
+                  ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    LCB_GREEN)
                 }
               >
                 <ArrowRight size={18} />
@@ -414,8 +398,11 @@ const ChatSection = () => {
 
             {/* Chips */}
             <div className="space-y-2">
-              <p className="text-xs sm:text-sm font-montserrat" style={{ color: LCB_GREEN_DARK }}>
-                {language === "en" ? "Try asking:" : "पूछने की कोशिश करें:"}
+              <p
+                className="text-xs sm:text-sm font-montserrat"
+                style={{ color: LCB_GREEN_DARK }}
+              >
+                Try asking ({language === "en" ? "English" : "Hinglish"} examples):
               </p>
 
               <div className="relative">
@@ -423,8 +410,10 @@ const ChatSection = () => {
                   aria-label="Scroll left"
                   onClick={() => scrollChips("left")}
                   disabled={!canScrollLeft}
-                  className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2 shadow ${
-                    canScrollLeft ? "opacity-100" : "opacity-40 cursor-not-allowed"
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2 shadow transition-opacity ${
+                    canScrollLeft
+                      ? "opacity-100"
+                      : "opacity-40 cursor-not-allowed"
                   } hidden sm:flex`}
                   style={{ backgroundColor: LCB_GREEN, color: "white" }}
                 >
@@ -441,12 +430,13 @@ const ChatSection = () => {
                       key={index}
                       onClick={() => handleSendMessage(question)}
                       disabled={isLoading || !isServerOnline}
-                      className="shrink-0 snap-start rounded-full text-xs sm:text-sm px-3 sm:px-4 py-2 border transition-all hover:shadow"
+                      className="shrink-0 snap-start rounded-full text-xs sm:text-sm px-3 sm:px-4 py-2 border transition-all hover:shadow-md hover:bg-gray-50"
                       style={{
                         borderColor: LCB_GREEN,
                         color: LCB_GREEN_DARK,
                         background: "white",
                       }}
+                      title={language === "en" ? "English" : "Hinglish"}
                     >
                       {question}
                     </button>
@@ -457,8 +447,10 @@ const ChatSection = () => {
                   aria-label="Scroll right"
                   onClick={() => scrollChips("right")}
                   disabled={!canScrollRight}
-                  className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2 shadow ${
-                    canScrollRight ? "opacity-100" : "opacity-40 cursor-not-allowed"
+                  className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2 shadow transition-opacity ${
+                    canScrollRight
+                      ? "opacity-100"
+                      : "opacity-40 cursor-not-allowed"
                   } hidden sm:flex`}
                   style={{ backgroundColor: LCB_GREEN, color: "white" }}
                 >
@@ -469,11 +461,6 @@ const ChatSection = () => {
           </div>
         </div>
       </div>
-      <style jsx>{`
-        div::-webkit-scrollbar {
-          height: 0px;
-        }
-      `}</style>
     </section>
   );
 };
